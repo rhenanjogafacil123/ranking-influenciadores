@@ -7,11 +7,10 @@ import {
   Film,
   Info,
   Instagram,
-  Link as LinkIcon,
-  LockKeyhole,
   Plus,
   Save,
   ShieldAlert,
+  Sparkles,
   Trophy,
   UserRound,
   X
@@ -22,25 +21,29 @@ function formatNumber(value) {
   return Number(value || 0).toLocaleString("pt-BR");
 }
 
+function formatCurrency(value) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+}
+
 const tabs = [
   { key: "ranking", label: "Ranking", icon: Trophy },
-  { key: "clips", label: "Meus clipes", icon: Film, badge: "104" },
+  { key: "clips", label: "Meus clipes", icon: Film },
   { key: "accounts", label: "Minhas contas", icon: UserRound },
-  { key: "warnings", label: "Advertências", icon: ShieldAlert }
+  { key: "warnings", label: "Advertências", icon: ShieldAlert },
 ];
 
 export default function App() {
   const ranking = useMemo(() => {
-    return influencers
-      .map((item) => ({
-        ...item,
-        totalViews: item.clips.reduce((sum, clip) => sum + clip.views, 0)
-      }))
+    return [...influencers]
       .sort((a, b) => b.totalViews - a.totalViews)
       .map((item, index) => ({
         ...item,
         position: index + 1,
-        prize: prizeByPosition[index + 1] || 0
+        prize: prizeByPosition[index + 1] || 0,
       }));
   }, []);
 
@@ -52,7 +55,24 @@ export default function App() {
   return (
     <div className="app-bg">
       <div className="dashboard-shell">
-        <header className="topbar">
+        <header className="app-header">
+          <div className="app-heading">
+            <span className="app-logo">
+              <Trophy size={18} />
+            </span>
+            <div>
+              <p className="eyebrow">Painel do clipador</p>
+              <h1 className="app-title">Ranking e desempenho</h1>
+            </div>
+          </div>
+
+          <button className="send-clip-top" onClick={() => setSendOpen(true)}>
+            <Plus size={15} strokeWidth={2.5} />
+            Enviar clipe
+          </button>
+        </header>
+
+        <div className="nav-shell">
           <nav className="tabbar" aria-label="Navegação principal">
             {tabs.map((item) => {
               const Icon = item.icon;
@@ -62,19 +82,13 @@ export default function App() {
                   className={"tab " + (activeTab === item.key ? "active" : "")}
                   onClick={() => setActiveTab(item.key)}
                 >
-                  <Icon size={13} strokeWidth={2.4} />
-                  <span className="tab-label">{item.label}</span>
-                  {item.badge && <span className="tab-badge">{item.badge}</span>}
+                  <Icon size={14} strokeWidth={2.2} />
+                  <span>{item.label}</span>
                 </button>
               );
             })}
           </nav>
-
-          <button className="send-clip-top" onClick={() => setSendOpen(true)}>
-            <Plus size={14} strokeWidth={2.5} />
-            Enviar clipe
-          </button>
-        </header>
+        </div>
 
         <main className="content-area">
           {activeTab === "ranking" && (
@@ -84,7 +98,11 @@ export default function App() {
               onSelect={setSelected}
             />
           )}
-          {activeTab === "clips" && <ClipsPage />}
+
+          {activeTab === "clips" && (
+            <ClipsPage clips={myClips} onSend={() => setSendOpen(true)} />
+          )}
+
           {activeTab === "accounts" && <AccountsPage />}
           {activeTab === "warnings" && <WarningsPage />}
         </main>
@@ -102,152 +120,220 @@ export default function App() {
 function RankingPage({ ranking, onOpenRules, onSelect }) {
   return (
     <section className="panel ranking-panel">
-      <div className="ranking-headline">
+      <div className="panel-header ranking-headline">
         <div className="section-title-row">
           <span className="section-icon">
-            <Trophy size={16} />
+            <Trophy size={17} />
           </span>
-          <h1>
-            Ranking do mês <span>· {month}</span>
-          </h1>
+          <div>
+            <div className="title-with-pill">
+              <h2>Ranking do mês</h2>
+              <span className="month-label">· {month}</span>
+            </div>
+            <p className="panel-subtitle">
+              Classificação por visualizações acumuladas no mês.
+            </p>
+          </div>
         </div>
 
-        <button className="outline-coral" onClick={onOpenRules}>
-          <Info size={13} />
-          Regras
-        </button>
+        <div className="ranking-actions">
+          <span className="demo-pill">
+            <Sparkles size={11} />
+            Dados demonstrativos
+          </span>
+          <button className="outline-coral" onClick={onOpenRules}>
+            <Info size={13} />
+            Regras
+          </button>
+        </div>
       </div>
 
-      <p className="ranking-copy">
-        Todo mês os 7 clipadores com mais visualizações somadas nos clipes ganham:
-        <b> R$ 2.000</b> (1º), <b>R$ 1.500</b> (2º e 3º), <b>R$ 1.000</b> (4º e
-        5º) e <b>R$ 500</b> (6º e 7º).
+      <div className="reward-strip">
+        <span>
+          <b>1º</b> R$ 2.000
+        </span>
+        <span>
+          <b>2º–3º</b> R$ 1.500
+        </span>
+        <span>
+          <b>4º–5º</b> R$ 1.000
+        </span>
+        <span>
+          <b>6º–7º</b> R$ 500
+        </span>
+      </div>
+
+      <ol className="ranking-list">
+        {ranking.map((item) => (
+          <li key={item.id}>
+            <button className="ranking-row" onClick={() => onSelect(item)}>
+              <span
+                className={
+                  "position-badge pos-" +
+                  (item.position <= 3 ? item.position : "other")
+                }
+              >
+                {item.position}º
+              </span>
+
+              <span className="ranking-person">
+                <strong>{item.name}</strong>
+                <small>{item.position <= 7 ? "Faixa de premiação" : "Ranking"}</small>
+              </span>
+
+              <span className="views">
+                <Eye size={14} />
+                {formatNumber(item.totalViews)}
+              </span>
+
+              <span className="prize">{formatCurrency(item.prize)}</span>
+
+              <span className="info-circle">
+                <Info size={12} />
+              </span>
+            </button>
+          </li>
+        ))}
+      </ol>
+
+      <p className="demo-footnote">
+        Os nomes e números desta tela são fictícios por enquanto. A estrutura já está
+        pronta para receber os dados reais depois.
       </p>
-
-      <div className="ranking-scroll">
-        <ol className="ranking-list">
-          {ranking.map((item) => (
-            <li key={item.id}>
-              <button className="ranking-row" onClick={() => onSelect(item)}>
-                <span
-                  className={
-                    "position-badge pos-" +
-                    (item.position <= 3 ? item.position : "other")
-                  }
-                >
-                  {item.position}º
-                </span>
-                <span className="influencer-name">{item.name}</span>
-                <span className="views">
-                  <Eye size={13} />
-                  {formatNumber(item.totalViews)}
-                </span>
-                <span className="prize">R$ {formatNumber(item.prize)}</span>
-                <span className="info-circle">
-                  <Info size={12} />
-                </span>
-              </button>
-            </li>
-          ))}
-        </ol>
-      </div>
     </section>
   );
 }
 
-function ClipsPage() {
+function ClipsPage({ clips, onSend }) {
   return (
-    <section className="panel clips-panel">
-      <div className="simple-title">
-        <span className="section-icon">
-          <Film size={15} />
-        </span>
-        <h2>Meus clipes</h2>
+    <section className="panel content-panel">
+      <div className="panel-header">
+        <div className="section-title-row">
+          <span className="section-icon">
+            <Film size={17} />
+          </span>
+          <div>
+            <h2>Meus clipes</h2>
+            <p className="panel-subtitle">
+              Acompanhe aqui os clipes que você enviar.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="table-wrap">
-        <table className="clips-table">
-          <thead>
-            <tr>
-              <th>CLIPE</th>
-              <th>ENVIADO EM</th>
-              <th>VIEWS</th>
-              <th>STATUS</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {myClips.map((clip) => (
-              <tr key={clip.id}>
-                <td>
-                  <div className="clip-name">
-                    <span className="platform-mark">◆</span>
-                    <strong>{clip.platform}</strong>
-                  </div>
-                  {clip.status === "removed" && (
-                    <div className="removed-note">
-                      Clipe apagado ou indisponível na rede — parou de contar.
-                    </div>
-                  )}
-                </td>
-                <td>{clip.sentAt}</td>
-                <td className="views-cell">{formatNumber(clip.views)}</td>
-                <td>
-                  <span className={"status " + clip.status}>
-                    {clip.status === "live" ? (
-                      <>
-                        <Check size={10} /> No ar
-                      </>
-                    ) : (
-                      <>
-                        <X size={10} /> Removido
-                      </>
-                    )}
-                  </span>
-                </td>
-                <td>
-                  <button className="ghost-icon" aria-label="Privado">
-                    <LockKeyhole size={12} />
-                  </button>
-                </td>
+      {clips.length === 0 ? (
+        <div className="empty-state empty-clips">
+          <span className="empty-icon">
+            <Film size={23} />
+          </span>
+          <h3>Você ainda não enviou nenhum clipe</h3>
+          <p>
+            Quando você enviar o primeiro, ele aparecerá aqui com visualizações,
+            data e status.
+          </p>
+          <button className="coral-button empty-cta" onClick={onSend}>
+            <Plus size={14} />
+            Enviar primeiro clipe
+          </button>
+        </div>
+      ) : (
+        <div className="table-wrap">
+          <table className="clips-table">
+            <thead>
+              <tr>
+                <th>CLIPE</th>
+                <th>ENVIADO EM</th>
+                <th>VIEWS</th>
+                <th>STATUS</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {clips.map((clip) => (
+                <tr key={clip.id}>
+                  <td>{clip.platform}</td>
+                  <td>{clip.sentAt}</td>
+                  <td>{formatNumber(clip.views)}</td>
+                  <td>{clip.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
 
 function AccountsPage() {
+  const [network, setNetwork] = useState("TikTok");
   const [handle, setHandle] = useState("");
-  const [pix, setPix] = useState("clipador@exemplo.com");
-  const [saved, setSaved] = useState(true);
+  const [accounts, setAccounts] = useState([]);
+  const [pix, setPix] = useState("");
+  const [pixSaved, setPixSaved] = useState(false);
+
+  function addAccount() {
+    const cleanHandle = handle.trim();
+    if (!cleanHandle) return;
+
+    const normalized = cleanHandle.startsWith("@")
+      ? cleanHandle
+      : `@${cleanHandle}`;
+
+    setAccounts((current) => [
+      ...current,
+      { id: Date.now(), network, handle: normalized },
+    ]);
+    setHandle("");
+  }
+
+  function removeAccount(id) {
+    setAccounts((current) => current.filter((account) => account.id !== id));
+  }
 
   return (
-    <div className="accounts-stack">
+    <div className="settings-grid">
       <section className="panel settings-panel">
-        <div className="simple-title">
-          <span className="section-icon">
-            <Instagram size={15} />
-          </span>
-          <h2>Minhas contas</h2>
+        <div className="panel-header">
+          <div className="section-title-row">
+            <span className="section-icon">
+              <Instagram size={17} />
+            </span>
+            <div>
+              <h2>Minhas contas</h2>
+              <p className="panel-subtitle">
+                Cadastre somente os perfis que você realmente usa para postar.
+              </p>
+            </div>
+          </div>
         </div>
 
-        <p className="settings-copy">
-          Cadastre o(s) @ que você usa pra postar os clipes. Não pedimos senha nem
-          conexão com a rede — é só identificação.
-        </p>
+        {accounts.length === 0 ? (
+          <div className="inline-empty">Nenhuma conta cadastrada.</div>
+        ) : (
+          <div className="account-list">
+            {accounts.map((account) => (
+              <div className="account-chip" key={account.id}>
+                <span className="platform-dot" />
+                <strong>{account.handle}</strong>
+                <small>{account.network}</small>
+                <button
+                  type="button"
+                  onClick={() => removeAccount(account.id)}
+                  aria-label="Remover conta"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-        <div className="account-chip">
-          <span className="platform-mark">◆</span>
-          <strong>@seuusuario</strong>
-          <small>· TikTok</small>
-          <button aria-label="Remover conta">×</button>
-        </div>
-
-        <div className="account-form-row">
-          <select aria-label="Rede social">
+        <div className="form-row account-form-row">
+          <select
+            aria-label="Rede social"
+            value={network}
+            onChange={(event) => setNetwork(event.target.value)}
+          >
             <option>TikTok</option>
             <option>Instagram</option>
           </select>
@@ -256,7 +342,7 @@ function AccountsPage() {
             onChange={(event) => setHandle(event.target.value)}
             placeholder="@seuusuario"
           />
-          <button className="coral-button" onClick={() => setHandle("")}>
+          <button className="coral-button" onClick={addAccount}>
             <Plus size={13} />
             Adicionar
           </button>
@@ -264,38 +350,43 @@ function AccountsPage() {
       </section>
 
       <section className="panel settings-panel">
-        <div className="simple-title">
-          <span className="section-icon">
-            <CircleDollarSign size={15} />
-          </span>
-          <h2>
-            Chave Pix <span>· pra receber seus prêmios</span>
-          </h2>
+        <div className="panel-header">
+          <div className="section-title-row">
+            <span className="section-icon">
+              <CircleDollarSign size={17} />
+            </span>
+            <div>
+              <h2>Chave Pix</h2>
+              <p className="panel-subtitle">
+                Informe a chave que deverá receber eventuais premiações.
+              </p>
+            </div>
+          </div>
         </div>
 
-        <p className="settings-copy">
-          É pra essa chave que a equipe manda o prêmio se você ficar entre os
-          premiados do mês.
-        </p>
-
-        <div className="pix-row">
+        <div className="form-row pix-row">
           <input
             value={pix}
             onChange={(event) => {
               setPix(event.target.value);
-              setSaved(false);
+              setPixSaved(false);
             }}
+            placeholder="Digite sua chave Pix"
           />
-          <button className="coral-button" onClick={() => setSaved(true)}>
+          <button
+            className="coral-button"
+            disabled={!pix.trim()}
+            onClick={() => setPixSaved(Boolean(pix.trim()))}
+          >
             <Save size={13} />
             Salvar
           </button>
         </div>
 
-        {saved && (
+        {pixSaved && (
           <p className="saved-note">
-            <Check size={12} />
-            Chave cadastrada
+            <Check size={13} />
+            Chave cadastrada nesta sessão
           </p>
         )}
       </section>
@@ -305,23 +396,27 @@ function AccountsPage() {
 
 function WarningsPage() {
   return (
-    <section className="panel warnings-panel">
-      <div className="simple-title">
-        <span className="section-icon">
-          <ShieldAlert size={15} />
-        </span>
-        <h2>Advertências</h2>
+    <section className="panel content-panel">
+      <div className="panel-header">
+        <div className="section-title-row">
+          <span className="section-icon">
+            <ShieldAlert size={17} />
+          </span>
+          <div>
+            <h2>Advertências</h2>
+            <p className="panel-subtitle">
+              Avisos relacionados aos seus clipes aparecerão aqui.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="empty-state">
-        <span>
-          <Check size={20} />
+        <span className="empty-icon success">
+          <Check size={23} />
         </span>
-        <h3>Nenhuma advertência ativa</h3>
-        <p>
-          Quando houver alguma ocorrência relacionada aos seus clipes ou às regras
-          da campanha, ela aparece aqui.
-        </p>
+        <h3>Nenhuma advertência</h3>
+        <p>Não há nenhuma ocorrência registrada no momento.</p>
       </div>
     </section>
   );
@@ -329,38 +424,39 @@ function WarningsPage() {
 
 function InfluencerModal({ influencer, onClose }) {
   return (
-    <Modal onClose={onClose} width="440px">
-      <div className="modal-list-title">
-        <div>
-          <strong>{influencer.name}</strong>
-          <span>{influencer.username}</span>
-        </div>
-        <span className="total-mini">
-          <Eye size={12} />
-          {formatNumber(influencer.totalViews)}
+    <Modal onClose={onClose} width="470px">
+      <div className="modal-profile">
+        <span
+          className={
+            "position-badge pos-" +
+            (influencer.position <= 3 ? influencer.position : "other")
+          }
+        >
+          {influencer.position}º
         </span>
+        <div>
+          <p className="eyebrow">Resumo do ranking</p>
+          <strong>{influencer.name}</strong>
+        </div>
       </div>
 
-      <div className="clip-detail-list">
-        {influencer.clips.map((clip) => (
-          <div className="clip-detail-row" key={clip.id}>
-            <div>
-              <strong>
-                <span className="platform-mark">◆</span> {clip.platform}
-              </strong>
-              <small>postado em {clip.date}</small>
-            </div>
+      <div className="metric-grid">
+        <div className="metric-card">
+          <span>Visualizações</span>
+          <strong>{formatNumber(influencer.totalViews)}</strong>
+        </div>
+        <div className="metric-card">
+          <span>Premiação atual</span>
+          <strong className="metric-prize">{formatCurrency(influencer.prize)}</strong>
+        </div>
+      </div>
 
-            <span className="clip-detail-views">
-              <Eye size={11} />
-              {formatNumber(clip.views)}
-            </span>
-
-            <button className="ghost-icon" aria-label="Abrir clipe">
-              <LinkIcon size={11} />
-            </button>
-          </div>
-        ))}
+      <div className="demo-box">
+        <Sparkles size={14} />
+        <p>
+          Este participante faz parte do ranking demonstrativo. Ainda não existem
+          clipes reais cadastrados no sistema.
+        </p>
       </div>
 
       <div className="modal-footer">
@@ -374,14 +470,14 @@ function InfluencerModal({ influencer, onClose }) {
 
 function RulesModal({ onClose }) {
   return (
-    <Modal onClose={onClose} width="430px">
-      <div className="rules-title">
+    <Modal onClose={onClose} width="440px">
+      <div className="modal-heading">
         <span className="section-icon">
-          <Trophy size={15} />
+          <Trophy size={16} />
         </span>
         <div>
+          <p className="eyebrow">Premiação mensal</p>
           <strong>Regras do ranking</strong>
-          <small>Premiação mensal</small>
         </div>
       </div>
 
@@ -416,11 +512,14 @@ function SendClipModal({ onClose }) {
   const [link, setLink] = useState("");
   const [title, setTitle] = useState("");
 
+  const canSubmit = link.trim().length > 8;
+
   return (
-    <Modal onClose={onClose} width="460px">
+    <Modal onClose={onClose} width="480px">
       <div className="send-title">
+        <p className="eyebrow">Novo envio</p>
         <strong>Enviar clipe</strong>
-        <span>Todo clipe já conta pras suas visualizações do mês.</span>
+        <span>Adicione o link do conteúdo publicado.</span>
       </div>
 
       <label className="field-label">
@@ -428,7 +527,8 @@ function SendClipModal({ onClose }) {
         <input
           value={link}
           onChange={(event) => setLink(event.target.value)}
-          placeholder="https://www.tiktok.com/@voce/video/..."
+          placeholder="Cole aqui o link do vídeo"
+          autoFocus
         />
       </label>
 
@@ -437,21 +537,20 @@ function SendClipModal({ onClose }) {
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          placeholder="Ex.: Corte da aula de Matemática"
+          placeholder="Dê um nome para identificar o clipe"
         />
       </label>
 
       <p className="legal-note">
-        <AlertTriangle size={12} />
-        Ao enviar, você autoriza a equipe a repostar e reutilizar este clipe nos
-        canais e materiais da campanha.
+        <AlertTriangle size={13} />
+        O envio definitivo será conectado ao banco de dados na próxima etapa.
       </p>
 
       <div className="modal-footer">
         <button className="soft-button" onClick={onClose}>
           Cancelar
         </button>
-        <button className="coral-button" onClick={onClose}>
+        <button className="coral-button" disabled={!canSubmit} onClick={onClose}>
           Enviar
         </button>
       </div>
@@ -470,7 +569,7 @@ function Modal({ children, onClose, width }) {
         aria-modal="true"
       >
         <button className="modal-x" onClick={onClose} aria-label="Fechar">
-          <X size={15} />
+          <X size={16} />
         </button>
         {children}
       </div>
