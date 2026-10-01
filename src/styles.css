@@ -1073,3 +1073,8 @@ select:focus-visible {
     width: 100%;
   }
 }
+
+
+.reward-strip-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
