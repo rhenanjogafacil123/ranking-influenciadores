@@ -4,13 +4,9 @@ export const month = new Intl.DateTimeFormat("pt-BR", {
 }).format(new Date());
 
 export const prizeByPosition = {
-  1: 2000,
-  2: 1500,
-  3: 1500,
-  4: 1000,
-  5: 1000,
-  6: 500,
-  7: 500,
+  1: 300,
+  2: 200,
+  3: 100,
 };
 
 /**
