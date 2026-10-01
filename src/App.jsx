@@ -148,18 +148,15 @@ function RankingPage({ ranking, onOpenRules, onSelect }) {
         </div>
       </div>
 
-      <div className="reward-strip">
+      <div className="reward-strip reward-strip-three">
         <span>
-          <b>1º</b> R$ 2.000
+          <b>1º lugar</b> R$ 300
         </span>
         <span>
-          <b>2º–3º</b> R$ 1.500
+          <b>2º lugar</b> R$ 200
         </span>
         <span>
-          <b>4º–5º</b> R$ 1.000
-        </span>
-        <span>
-          <b>6º–7º</b> R$ 500
+          <b>3º lugar</b> R$ 100
         </span>
       </div>
 
@@ -178,7 +175,7 @@ function RankingPage({ ranking, onOpenRules, onSelect }) {
 
               <span className="ranking-person">
                 <strong>{item.name}</strong>
-                <small>{item.position <= 7 ? "Faixa de premiação" : "Ranking"}</small>
+                <small>{item.position <= 3 ? "Faixa de premiação" : "Ranking"}</small>
               </span>
 
               <span className="views">
@@ -484,19 +481,15 @@ function RulesModal({ onClose }) {
       <div className="prize-grid">
         <div>
           <span>1º lugar</span>
-          <strong>R$ 2.000</strong>
+          <strong>R$ 300</strong>
         </div>
         <div>
-          <span>2º e 3º lugares</span>
-          <strong>R$ 1.500</strong>
+          <span>2º lugar</span>
+          <strong>R$ 200</strong>
         </div>
         <div>
-          <span>4º e 5º lugares</span>
-          <strong>R$ 1.000</strong>
-        </div>
-        <div>
-          <span>6º e 7º lugares</span>
-          <strong>R$ 500</strong>
+          <span>3º lugar</span>
+          <strong>R$ 100</strong>
         </div>
       </div>
 
