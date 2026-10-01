@@ -221,7 +221,7 @@ function ClipsPage() {
 
 function AccountsPage() {
   const [handle, setHandle] = useState("");
-  const [pix, setPix] = useState("rhenantesteiarj@gmail.com");
+  const [pix, setPix] = useState("clipador@exemplo.com");
   const [saved, setSaved] = useState(true);
 
   return (
@@ -241,7 +241,7 @@ function AccountsPage() {
 
         <div className="account-chip">
           <span className="platform-mark">◆</span>
-          <strong>@ekipfenixvguando</strong>
+          <strong>@seuusuario</strong>
           <small>· TikTok</small>
           <button aria-label="Remover conta">×</button>
         </div>
