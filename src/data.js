@@ -1,4 +1,7 @@
-export const month = "outubro de 2026";
+export const month = new Intl.DateTimeFormat("pt-BR", {
+  month: "long",
+  year: "numeric",
+}).format(new Date());
 
 export const prizeByPosition = {
   1: 2000,
@@ -10,71 +13,22 @@ export const prizeByPosition = {
   7: 500,
 };
 
+/**
+ * Ranking demonstrativo para preservar o visual enquanto ainda não há dados reais.
+ * Os nomes e números abaixo são fictícios e podem ser substituídos pelo backend depois.
+ */
 export const influencers = [
-  {
-    id: 1,
-    name: "Ruan Tavares César",
-    username: "@ruantavares",
-    clips: [
-      { id: "r1", platform: "TikTok", views: 1209, date: "01/10/2026" },
-      { id: "r2", platform: "TikTok", views: 543, date: "01/10/2026" },
-      { id: "r3", platform: "TikTok", views: 495, date: "01/10/2026" },
-      { id: "r4", platform: "TikTok", views: 325, date: "01/10/2026" },
-      { id: "r5", platform: "TikTok", views: 178, date: "01/10/2026" },
-      { id: "r6", platform: "TikTok", views: 2344, date: "30/09/2026" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Guilherme Mota da Silva",
-    username: "@guilhermemota",
-    clips: [
-      { id: "g1", platform: "TikTok", views: 1025, date: "30/09/2026" },
-      { id: "g2", platform: "TikTok", views: 714, date: "30/09/2026" },
-      { id: "g3", platform: "TikTok", views: 378, date: "29/09/2026" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Marcio Guilherme Gusmão Macedo",
-    username: "@marciogusmao",
-    clips: [
-      { id: "m1", platform: "TikTok", views: 612, date: "30/09/2026" },
-      { id: "m2", platform: "TikTok", views: 372, date: "29/09/2026" }
-    ]
-  },
-  {
-    id: 4,
-    name: "ERIC JESUS DE OLIVEIRA CASTRO",
-    username: "@ericjesus",
-    clips: [{ id: "e1", platform: "TikTok", views: 73, date: "28/09/2026" }]
-  },
-  {
-    id: 5,
-    name: "Adrian Jotemberg Lopes da Silva",
-    username: "@adrianjotemberg",
-    clips: [{ id: "a1", platform: "TikTok", views: 42, date: "28/09/2026" }]
-  },
-  {
-    id: 6,
-    name: "Beatriz Lima Ferreira",
-    username: "@bialima",
-    clips: [{ id: "b1", platform: "TikTok", views: 31, date: "27/09/2026" }]
-  },
-  {
-    id: 7,
-    name: "Lucas Rocha Mendes",
-    username: "@lucasrocha",
-    clips: [{ id: "l1", platform: "TikTok", views: 21, date: "27/09/2026" }]
-  }
+  { id: 1, name: "Ruan Tavares César", totalViews: 5094 },
+  { id: 2, name: "Guilherme Mota da Silva", totalViews: 2117 },
+  { id: 3, name: "Marcio Guilherme Gusmão Macedo", totalViews: 984 },
+  { id: 4, name: "Eric Jesus de Oliveira Castro", totalViews: 730 },
+  { id: 5, name: "Adrian Jotemberg Lopes da Silva", totalViews: 612 },
+  { id: 6, name: "Beatriz Lima Ferreira", totalViews: 498 },
+  { id: 7, name: "Lucas Rocha Mendes", totalViews: 376 },
 ];
 
-export const myClips = [
-  { id: 1, platform: "TikTok", sentAt: "28/08/2026 10:03", views: 13200, status: "live" },
-  { id: 2, platform: "TikTok", sentAt: "28/08/2026 10:01", views: 0, status: "removed" },
-  { id: 3, platform: "TikTok", sentAt: "28/08/2026 09:57", views: 0, status: "removed" },
-  { id: 4, platform: "TikTok", sentAt: "28/08/2026 09:57", views: 405, status: "live" },
-  { id: 5, platform: "TikTok", sentAt: "28/08/2026 09:57", views: 258, status: "live" },
-  { id: 6, platform: "TikTok", sentAt: "28/08/2026 09:56", views: 317, status: "live" },
-  { id: 7, platform: "TikTok", sentAt: "28/08/2026 09:54", views: 226, status: "live" }
-];
+/**
+ * Sem clipes reais por enquanto.
+ * Quando houver backend, essa lista será preenchida pelos envios do usuário.
+ */
+export const myClips = [];
